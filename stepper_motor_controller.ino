@@ -40,7 +40,7 @@
 #include "Wire.h"
 #include "globals.h"
 #include "easycomm.h"
-#include "rotator_pins.h"
+#include "cnc_shield_rotator_pins.h"
 //#include <rs485.h>
 #include "endstop.h"
 //#include <watchdog.h>
