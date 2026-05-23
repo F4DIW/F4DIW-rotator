@@ -1,5 +1,5 @@
 #define SAMPLE_TIME        0.1
-#define RATIO              16
+#define RATIO              19.2
 #define MICROSTEP          8
 #define MIN_PULSE_WIDTH    20
 #define MAX_SPEED          3200
@@ -42,12 +42,12 @@ void setup() {
     switch_el.init();
     comm.easycomm_init();
     stepper_az.setEnablePin(MOTOR_EN);
-    stepper_az.setPinsInverted(false, false, true);
+    stepper_az.setPinsInverted(true, false, true);  // DIR inverted for CNC shield
     stepper_az.enableOutputs();
     stepper_az.setMaxSpeed(MAX_SPEED);
     stepper_az.setAcceleration(MAX_ACCELERATION);
     stepper_az.setMinPulseWidth(MIN_PULSE_WIDTH);
-    stepper_el.setPinsInverted(false, false, true);
+    stepper_el.setPinsInverted(true, false, true);  // DIR inverted for CNC shield
     stepper_el.enableOutputs();
     stepper_el.setMaxSpeed(MAX_SPEED);
     stepper_el.setAcceleration(MAX_ACCELERATION);
@@ -133,5 +133,10 @@ enum _rotator_error homing(int32_t seek_az, int32_t seek_el) {
     return no_error;
 }
 
-int32_t deg2step(float deg) { return (RATIO * SPR * deg / 360); }
-float step2deg(int32_t step) { return (360.00 * step / (SPR * RATIO)); }
+int32_t deg2step(float deg) {
+    return (RATIO * SPR * deg / 360);
+}
+
+float step2deg(int32_t step) {
+    return (360.00 * step / (SPR * RATIO));
+}

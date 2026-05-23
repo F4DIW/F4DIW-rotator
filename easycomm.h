@@ -16,8 +16,9 @@ class easycomm {
 public:
     void easycomm_init() {
         Serial.begin(9600);
+        delay(500);
         SerialBT.begin(BT_DEVICE_NAME);
-        Serial.println("[INFO] EasyComm II ready - USB + BT");
+        Serial.println("[INFO] EasyComm ready - USB + BT");
     }
 
     void easycomm_proc() {
@@ -59,14 +60,33 @@ private:
 
     void _process_cmd(char *cmd) {
         String str = String(cmd);
+        str.trim();
+
+        // EasyComm I : "AZxxx.x ELxxx.x" sur une seule ligne
+        int az_idx = str.indexOf("AZ");
+        int el_idx = str.indexOf("EL");
+
+        if (az_idx >= 0 && el_idx >= 0) {
+            control_az.setpoint = constrain(
+                str.substring(az_idx + 2, el_idx).toFloat(),
+                MIN_M1_ANGLE, MAX_M1_ANGLE);
+            control_el.setpoint = constrain(
+                str.substring(el_idx + 2).toFloat(),
+                MIN_M2_ANGLE, MAX_M2_ANGLE);
+            return;
+        }
+
+        // EasyComm II : commandes separees
         if (str.startsWith("AZ")) {
-            if (str.length() > 2) {
+            if (str.length() > 2)
                 control_az.setpoint = constrain(str.substring(2).toFloat(), MIN_M1_ANGLE, MAX_M1_ANGLE);
-            } else { _send("AZ" + String(control_az.input, 1) + "\n"); }
+            else
+                _send("AZ" + String(control_az.input, 1) + "\n");
         } else if (str.startsWith("EL")) {
-            if (str.length() > 2) {
+            if (str.length() > 2)
                 control_el.setpoint = constrain(str.substring(2).toFloat(), MIN_M2_ANGLE, MAX_M2_ANGLE);
-            } else { _send("EL" + String(control_el.input, 1) + "\n"); }
+            else
+                _send("EL" + String(control_el.input, 1) + "\n");
         } else if (str.startsWith("SA")) {
             control_az.setpoint = control_az.input;
         } else if (str.startsWith("SE")) {
@@ -80,9 +100,10 @@ private:
         } else if (str.startsWith("IP")) {
             _send("AZ" + String(control_az.input, 1) + " EL" + String(control_el.input, 1) + "\n");
         } else if (str.startsWith("RB")) {
-            delay(100); ESP.restart();
+            delay(100);
+            ESP.restart();
         }
     }
 };
 
-#endif
+#endif /* EASYCOMM_H_ */
