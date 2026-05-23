@@ -40,8 +40,8 @@
 
 - [x] Compilation tested ✅
 - [x] Bluetooth pairing tested ✅
-- [ ] Look4Sat connection tested
-- [ ] Motor movement tested
+- [x] Look4Sat connection tested
+- [x] Motor movement tested
 - [ ] End-stop homing tested
 - [ ] Full tracking tested
 
