@@ -43,7 +43,7 @@
 - [x] Look4Sat connection tested
 - [x] Motor movement tested
 - [ ] End-stop homing tested
-- [ ] Full tracking tested
+- [x] Full tracking tested ✅
 
 ## License
 
