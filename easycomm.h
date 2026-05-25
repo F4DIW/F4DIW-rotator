@@ -20,8 +20,14 @@ public:
         delay(500);
 
         SerialBT.register_callback([](esp_spp_cb_event_t event, esp_spp_cb_param_t* param) {
-            if (event == ESP_SPP_SRV_OPEN_EVT) Serial.println("[BT] Connected");
-            if (event == ESP_SPP_CLOSE_EVT)    Serial.println("[BT] Disconnected");
+            if (event == ESP_SPP_SRV_OPEN_EVT) {
+                Serial.println("[BT] Connected");
+            }
+            if (event == ESP_SPP_CLOSE_EVT) {
+                Serial.println("[BT] Disconnected - Parking AZ0 EL0");
+                control_az.setpoint = 0;
+                control_el.setpoint = 0;
+            }
         });
 
         SerialBT.begin(BT_DEVICE_NAME);
@@ -67,7 +73,6 @@ private:
         while (src.available()) {
             char c = (char)src.read();
             if (c == '\n' || c == '\r') {
-                // Fin de trame normale
                 if (_buf_cnt > 0) {
                     _buffer[_buf_cnt] = '\0';
                     _process_cmd(_buffer);
@@ -75,7 +80,6 @@ private:
                 }
             } else if (c == 'P' && _buf_cnt > 0) {
                 // Look4Sat envoie sans \n entre les trames
-                // On detecte le debut d un nouveau paquet P
                 _buffer[_buf_cnt] = '\0';
                 _process_cmd(_buffer);
                 _buf_cnt = 0;
@@ -153,6 +157,11 @@ private:
         } else if (str.startsWith("IP")) {
             _send("AZ" + String(control_az.input, 1) +
                   " EL" + String(control_el.input, 1) + "\n");
+        } else if (str.startsWith("PK")) {
+            // Commande manuelle de park
+            Serial.println("[INFO] Manual park AZ0 EL0");
+            control_az.setpoint = 0;
+            control_el.setpoint = 0;
         } else if (str.startsWith("RB")) {
             delay(100);
             ESP.restart();
