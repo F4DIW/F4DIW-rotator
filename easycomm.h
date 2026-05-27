@@ -7,7 +7,7 @@
 #include "globals.h"
 
 #define BUFFER_SIZE 256
-#define BT_DEVICE_NAME "SatNOGS-Rotator"
+#define BT_DEVICE_NAME "F4DIW-Rotator"
 
 typedef enum { SOURCE_USB, SOURCE_BT } _comm_source;
 
