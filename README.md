@@ -62,7 +62,7 @@ Look4Sat sends position data in format `P az el` without line endings between fr
 The firmware splits on the `P` delimiter to parse each frame correctly.
 
 Setup in Look4Sat:
-1. Pair Android with **`SatNOGS-Rotator`** in Bluetooth settings
+1. Pair Android with **`F4DIW-Rotator`** in Bluetooth settings
 2. **Settings → Bluetooth data output**
    - Enable rotation output: **ON**
    - Device id: your ESP32 BT MAC (shown in Serial monitor at boot)
@@ -131,7 +131,7 @@ Default: **1/8** (`MICROSTEP 8`)
 
 ```
 [INFO] EasyComm ready - USB + BT
-[INFO] BT Name: SatNOGS-Rotator
+[INFO] BT Name: F4DIW-Rotator
 [INFO] BT MAC:  10:52:1C:67:0C:BE
 [INFO] Homing SKIPPED
 ```
