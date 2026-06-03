@@ -4,14 +4,18 @@
 #include <Arduino.h>
 #include "BluetoothSerial.h"
 #include "esp_bt_device.h"
+#include "AccelStepper.h"
 #include "globals.h"
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE    256
 #define BT_DEVICE_NAME "F4DIW-Rotator"
+#define JOG_STEP       1.0  ///< Pas de deplacement manuel ML/MR/MU/MD en degres
 
 typedef enum { SOURCE_USB, SOURCE_BT } _comm_source;
 
 extern BluetoothSerial SerialBT;
+extern AccelStepper stepper_az;
+extern AccelStepper stepper_el;
 
 class easycomm {
 public:
@@ -144,6 +148,33 @@ private:
         } else if (str.startsWith("AZ EL")) {
             _send("AZ" + String(control_az.input, 1) +
                   " EL" + String(control_el.input, 1) + "\n");
+
+        // Jog manuel - calibration physique avant RST
+        } else if (str.startsWith("ML")) {
+            control_az.setpoint -= JOG_STEP;
+            Serial.println("[JOG] ML AZ=" + String(control_az.setpoint, 1));
+        } else if (str.startsWith("MR")) {
+            control_az.setpoint += JOG_STEP;
+            Serial.println("[JOG] MR AZ=" + String(control_az.setpoint, 1));
+        } else if (str.startsWith("MU")) {
+            control_el.setpoint += JOG_STEP;
+            Serial.println("[JOG] MU EL=" + String(control_el.setpoint, 1));
+        } else if (str.startsWith("MD")) {
+            control_el.setpoint -= JOG_STEP;
+            Serial.println("[JOG] MD EL=" + String(control_el.setpoint, 1));
+
+        // RST - Reset compteurs a zero sans bouger
+        // Workflow : jog jusqu'a position physique correcte, puis RST
+        } else if (str.startsWith("RST")) {
+            stepper_az.setCurrentPosition(0);
+            stepper_el.setCurrentPosition(0);
+            control_az.setpoint = 0;
+            control_el.setpoint = 0;
+            control_az.input = 0;
+            control_el.input = 0;
+            _send("AZ0.0 EL0.0\n");
+            Serial.println("[INFO] RST - Compteurs remis a zero");
+
         } else if (str.startsWith("SA")) {
             control_az.setpoint = control_az.input;
         } else if (str.startsWith("SE")) {
@@ -158,7 +189,6 @@ private:
             _send("AZ" + String(control_az.input, 1) +
                   " EL" + String(control_el.input, 1) + "\n");
         } else if (str.startsWith("PK")) {
-            // Commande manuelle de park
             Serial.println("[INFO] Manual park AZ0 EL0");
             control_az.setpoint = 0;
             control_el.setpoint = 0;
